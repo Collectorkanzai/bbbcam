@@ -1,74 +1,50 @@
-navigator.mediaDevices.getUserMedia({ video: true })
-  .then(stream => {
-    const video = document.createElement('video');
-    video.srcObject = stream;
-    video.play();
+// Global variables
+let canvas = document.getElementById('canvas');
+let ctx = canvas.getContext('2d');
+let currentOverlay = null;
 
-    video.addEventListener('loadeddata', () => {
-      const canvas = document.createElement('canvas');
-      canvas.id = 'canvas';
-      document.body.appendChild(canvas);
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+// Function to change overlay based on button click
+function changeOverlay(filename) {
+  clearCanvas(); // Clear previous overlay
+  loadImage(filename); // Load new overlay image
+}
 
-      const context = canvas.getContext('2d');
+// Function to load and draw image on canvas
+function loadImage(filename) {
+  let img = new Image();
+  img.onload = function() {
+    // Resize canvas to match image dimensions
+    canvas.width = img.width;
+    canvas.height = img.height;
+    
+    // Draw image onto canvas
+    ctx.drawImage(img, 0, 0);
+    currentOverlay = img;
+  };
+  img.src = filename;
+}
 
-      const overlay = new Image();
-      overlay.src = 'images/BBB.png';
-      overlay.onload = () => {
-        const overlaySize = { width: 200, height: 200 };
-        let overlayPos = { x: canvas.width / 2 - overlaySize.width / 2, y: canvas.height / 2 - overlaySize.height / 2 };
+// Function to clear canvas
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  currentOverlay = null;
+}
 
-        function update() {
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          context.drawImage(video, 0, 0, canvas.width, canvas.height);
-          context.drawImage(overlay, overlayPos.x, overlayPos.y, overlaySize.width, overlaySize.height);
-          requestAnimationFrame(update);
-        }
-        update();
+// Function to resize canvas to match window size
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  
+  // Redraw current overlay if exists
+  if (currentOverlay) {
+    ctx.drawImage(currentOverlay, 0, 0, canvas.width, canvas.height);
+  }
+}
 
-        let initialDistance = 0;
-        let initialOverlaySize = { width: overlaySize.width, height: overlaySize.height };
+// Handle window resize event
+window.addEventListener('resize', resizeCanvas);
 
-        canvas.addEventListener('touchstart', (event) => {
-          if (event.touches.length === 2) {
-            initialDistance = getDistance(event.touches[0], event.touches[1]);
-            initialOverlaySize = { width: overlaySize.width, height: overlaySize.height };
-          }
-        });
-
-        canvas.addEventListener('touchmove', (event) => {
-          if (event.touches.length === 2) {
-            const newDistance = getDistance(event.touches[0], event.touches[1]);
-            const scaleChange = newDistance / initialDistance;
-            overlaySize.width = initialOverlaySize.width * scaleChange;
-            overlaySize.height = initialOverlaySize.height * scaleChange;
-          }
-        });
-
-        canvas.addEventListener('touchend', (event) => {
-          if (event.touches.length < 2) {
-            initialDistance = 0;
-          }
-        });
-
-        canvas.addEventListener('touchmove', (event) => {
-          if (event.touches.length === 1) {
-            const touch = event.touches[0];
-            overlayPos = { x: touch.clientX - overlaySize.width / 2, y: touch.clientY - overlaySize.height / 2 };
-          }
-        });
-
-        function getDistance(touch1, touch2) {
-          const dx = touch1.clientX - touch2.clientX;
-          const dy = touch1.clientY - touch2.clientY;
-          return Math.sqrt(dx * dx + dy * dy);
-        }
-      };
-
-      window.changeOverlay = function(image) {
-        overlay.src = 'images/' + image;
-      };
-    });
-  })
-  .catch(err => console.error("Error accessing the camera: ", err));
+// Initial canvas setup on page load
+window.onload = function() {
+  resizeCanvas(); // Resize canvas to match initial window size
+};
