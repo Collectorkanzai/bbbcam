@@ -23,6 +23,9 @@ function loadOverlay(filename) {
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     currentOverlay = img;
   };
+  img.onerror = function() {
+    console.error('Error loading overlay image:', filename);
+  };
   img.src = filename;
 }
 
