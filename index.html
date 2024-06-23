@@ -6,6 +6,7 @@
   <title>BIG BAGGED BROS</title>
   <style>
     body { margin: 0; overflow: hidden; }
+    #videoElement { display: block; position: absolute; top: 0; left: 0; }
     #canvas { display: block; position: absolute; top: 0; left: 0; }
     #buttons {
       position: absolute;
@@ -28,8 +29,8 @@
     <button onclick="changeOverlay('LASERBBB.png')">LASERBBB</button>
     <button onclick="changeOverlay('DOG.png')">DOG</button>
   </div>
+  <video id="videoElement" autoplay></video>
   <canvas id="canvas"></canvas>
   <script src="app.js"></script>
 </body>
 </html>
-

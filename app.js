@@ -1,4 +1,5 @@
 // Global variables
+let videoElement = document.getElementById('videoElement');
 let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
 let currentOverlay = null;
@@ -6,19 +7,16 @@ let currentOverlay = null;
 // Function to change overlay based on button click
 function changeOverlay(filename) {
   clearCanvas(); // Clear previous overlay
-  loadImage(filename); // Load new overlay image
+  loadOverlay(filename); // Load new overlay image
 }
 
-// Function to load and draw image on canvas
-function loadImage(filename) {
+// Function to load overlay image onto canvas
+function loadOverlay(filename) {
   let img = new Image();
   img.onload = function() {
-    // Resize canvas to match image dimensions
-    canvas.width = img.width;
-    canvas.height = img.height;
-    
     // Draw image onto canvas
-    ctx.drawImage(img, 0, 0);
+    ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     currentOverlay = img;
   };
   img.src = filename;
@@ -37,14 +35,23 @@ function resizeCanvas() {
   
   // Redraw current overlay if exists
   if (currentOverlay) {
-    ctx.drawImage(currentOverlay, 0, 0, canvas.width, canvas.height);
+    loadOverlay(currentOverlay.src); // Reload current overlay to fit new canvas size
   }
 }
 
 // Handle window resize event
 window.addEventListener('resize', resizeCanvas);
 
-// Initial canvas setup on page load
+// Setup webcam streaming on page load
 window.onload = function() {
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(function(stream) {
+      videoElement.srcObject = stream;
+      videoElement.play();
+    })
+    .catch(function(error) {
+      console.error('Error accessing webcam:', error);
+    });
+  
   resizeCanvas(); // Resize canvas to match initial window size
 };
