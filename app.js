@@ -14,7 +14,11 @@ function changeOverlay(filename) {
 function loadOverlay(filename) {
   let img = new Image();
   img.onload = function() {
-    // Draw image onto canvas
+    // Resize canvas to match video dimensions
+    canvas.width = videoElement.videoWidth;
+    canvas.height = videoElement.videoHeight;
+
+    // Draw video and overlay onto canvas
     ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     currentOverlay = img;
@@ -32,7 +36,7 @@ function clearCanvas() {
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  
+
   // Redraw current overlay if exists
   if (currentOverlay) {
     loadOverlay(currentOverlay.src); // Reload current overlay to fit new canvas size
@@ -44,14 +48,20 @@ window.addEventListener('resize', resizeCanvas);
 
 // Setup webcam streaming on page load
 window.onload = function() {
-  navigator.mediaDevices.getUserMedia({ video: true })
-    .then(function(stream) {
-      videoElement.srcObject = stream;
-      videoElement.play();
-    })
-    .catch(function(error) {
-      console.error('Error accessing webcam:', error);
-    });
-  
+  // Check if getUserMedia is supported
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(function(stream) {
+        videoElement.srcObject = stream;
+        videoElement.play();
+      })
+      .catch(function(error) {
+        console.error('Error accessing webcam:', error);
+      });
+  } else {
+    console.error('getUserMedia is not supported');
+  }
+
   resizeCanvas(); // Resize canvas to match initial window size
 };
+
