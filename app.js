@@ -46,7 +46,7 @@ function resizeCanvas() {
 // Handle window resize event
 window.addEventListener('resize', resizeCanvas);
 
-// Setup webcam streaming on page load
+// Setup webcam streaming and button functionality on page load
 window.onload = function() {
   // Check if getUserMedia is supported
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -62,6 +62,19 @@ window.onload = function() {
     console.error('getUserMedia is not supported');
   }
 
+  // Button click handlers
+  document.getElementById('BBBButton').addEventListener('click', function() {
+    changeOverlay('BBB.png');
+  });
+  document.getElementById('CHADButton').addEventListener('click', function() {
+    changeOverlay('CHAD.png');
+  });
+  document.getElementById('LASERBBBButton').addEventListener('click', function() {
+    changeOverlay('LASERBBB.png');
+  });
+  document.getElementById('DOGButton').addEventListener('click', function() {
+    changeOverlay('DOG.png');
+  });
+
   resizeCanvas(); // Resize canvas to match initial window size
 };
-
